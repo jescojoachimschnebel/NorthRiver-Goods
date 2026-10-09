@@ -1,0 +1,15 @@
+Bestellsuche vor Index
+EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.fact_orders_big WHERE order_id = 5000;
+
+Kontrollierte Planwerte aus der Ergebnisanzeige
+Gather (actual time=1.723..64.319 rows=3 loops=1)
+Workers Planned: 2
+Workers Launched: 2
+Parallel Seq Scan on fact_orders_big (actual time=7.077..31.698 rows=1 loops=3)
+Filter: (order_id = 5000)
+Rows Removed by Filter: 666666
+Buffers: shared hit=188 read=18504
+Planning Time: 0.347 ms
+Execution Time: 64.377 ms
+
+Rows Removed by Filter ist der gerundete Durchschnitt pro Durchlauf bei loops=3.

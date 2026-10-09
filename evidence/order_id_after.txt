@@ -1,0 +1,10 @@
+Bestellsuche nach Index
+EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.fact_orders_big WHERE order_id = 5000;
+
+Kontrollierte Planwerte aus der Ergebnisanzeige
+Index Scan using idx_fact_orders_big_order_id on fact_orders_big
+(cost=0.43..12.33 rows=2 width=42) (actual time=0.055..0.065 rows=3 loops=1)
+Index Cond: (order_id = 5000)
+Buffers: shared hit=1 read=5
+Planning Time: 0.517 ms
+Execution Time: 0.083 ms

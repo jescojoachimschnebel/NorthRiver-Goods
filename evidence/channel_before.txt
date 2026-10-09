@@ -1,0 +1,11 @@
+Channel Suche vor Channel Index
+EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.fact_orders_big WHERE channel_sk = 1;
+
+Kontrollierte Planwerte aus der Ergebnisanzeige
+Seq Scan on fact_orders_big (cost=0.00..43692.00 rows=502933 width=42)
+(actual time=0.050..105.387 rows=499794 loops=1)
+Filter: (channel_sk = 1)
+Rows Removed by Filter: 1500206
+Buffers: shared hit=350 read=18342
+Planning Time: 0.364 ms
+Execution Time: 114.694 ms

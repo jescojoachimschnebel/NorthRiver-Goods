@@ -1,0 +1,15 @@
+Channel Suche nach Channel Index
+EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.fact_orders_big WHERE channel_sk = 1;
+
+Kontrollierte Planwerte aus der Ergebnisanzeige
+Bitmap Heap Scan on fact_orders_big (cost=5606.16..30584.82 rows=502933 width=42)
+(actual time=12.530..316.680 rows=499794 loops=1)
+Recheck Cond: (channel_sk = 1)
+Heap Blocks: exact=18692
+Buffers: shared hit=3 read=19112
+Bitmap Index Scan on idx_fact_orders_big_channel_sk
+(actual time=10.714..10.714 rows=499794 loops=1)
+Index Cond: (channel_sk = 1)
+Buffers: shared read=423
+Planning Time: 0.596 ms
+Execution Time: 336.213 ms
