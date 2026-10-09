@@ -1,92 +1,190 @@
+# NorthRiver Goods – SQL-Analysen im Data Warehouse
 
-# NorthRiver Goods – SQL Warehouse Analytics
+**Masterschool Data Analytics | Abschlussprüfung: 100/100 Punkte**
 
-**Masterschool Data Analytics | Final Assessment: 100/100 Points**
+## Projektübersicht
 
-## Project Overview
+NorthRiver Goods ist ein Data-Warehouse-Projekt zur Analyse von Bestellungen, Umsätzen und Nutzeraktivität.
 
-NorthRiver Goods is a data warehouse analytics project focused on transforming transactional data into reliable, business-ready insights.
+Das Projekt umfasst dimensionale Modellierung, Datenqualitätsprüfungen, analytische SQL-Abfragen, Performance-Untersuchungen und Berichte mit Power BI.
 
-The project covers dimensional modeling, data quality validation, analytical SQL, query optimization, and Power BI reporting.
+Die veröffentlichten SQL-Dateien wurden nach der abgeschlossenen Prüfung zusätzlich überprüft und getestet. Diese Überarbeitung ergänzt das Projekt; das Prüfungsergebnis bleibt unverändert.
 
-## Technologies & Skills
+## Technologien und Kompetenzen
 
-- SQL (PostgreSQL and Databricks SQL)
-- Data Warehousing and Star Schema Modeling
+- SQL: PostgreSQL und Databricks SQL
+- Data Warehousing und Star Schema
 - Common Table Expressions (CTEs)
 - Window Functions
-- Data Quality Validation
-- Funnel and Cohort Retention Analysis
-- Query Performance Optimization
+- Datenqualitätsprüfungen
+- Funnel- und Kohortenanalysen
+- Untersuchung von Abfrageplänen und Indizes
 - Power BI
 
-## Data Warehouse Architecture
+Die SQL-Dateien in diesem Repository verwenden PostgreSQL-Syntax.
 
-The analytical model follows a star schema with one fact table and four dimensions.
+## SQL-Dateien
 
-**Fact table:** fact_orders
+| Datei | Inhalt |
+|---|---|
+| [00_warehouse_and_data_quality.sql](sql/00_warehouse_and_data_quality.sql) | Tabellenübersicht, Granularität und Auswirkungen fehlerhafter Joins |
+| [01_basic_queries.sql](sql/01_basic_queries.sql) | Umsätze, Bestellungen, Produkte, Regionen und Vertriebskanäle |
+| [02_ctes.sql](sql/02_ctes.sql) | Umsatzanteile und Vergleiche mit Durchschnittswerten |
+| [03_window_functions.sql](sql/03_window_functions.sql) | Rankings, Monatsvergleiche, laufende Summen und gleitende Durchschnitte |
+| [04_cohort_analysis.sql](sql/04_cohort_analysis.sql) | Anmeldekohorten und Retention anhand von Sessions |
+| [05_funnel_analysis.sql](sql/05_funnel_analysis.sql) | Geordneter Funnel, Kaufquoten und Prüfung der Anmeldezeitpunkte |
+| [06_validation_suite.sql](sql/06_validation_suite.sql) | Datenqualitäts- und Integritätsprüfungen |
+| [07_bi_views.sql](sql/07_bi_views.sql) | BI-Views und Abgleich der Kontrollsummen |
+| [08_performance.sql](sql/08_performance.sql) | Indexübersicht und Messung von Ausführungsplänen |
 
-**Dimensions:**
-- dim_customer
-- dim_product
-- dim_date
-- dim_channel
+## Datenmodell und Granularität
 
-**Grain:** One row per order item.
+Das Bestellmodell folgt einem Star Schema mit einer Faktentabelle und vier Dimensionen.
 
-This structure supports consistent revenue, product, customer, and channel analysis.
+**Faktentabelle:** `fact_orders`
 
-## Analytical Use Cases
+**Dimensionen:**
 
-### Revenue Analysis
-- Revenue by region, product category, and sales channel
-- Product rankings and running totals
-- Monthly revenue comparisons using window functions
+- `dim_customer` – Kunden
+- `dim_product` – Produkte
+- `dim_date` – Datum
+- `dim_channel` – Vertriebskanäle
 
-### Cohort Retention
-- Customer grouping by cohort month
-- Monthly retention calculations
-- Retention trends over time
+**Granularität:** Eine Zeile entspricht einer Bestellposition.
 
-### Funnel Analysis
-- Analysis of customer progression through funnel stages
-- Conversion rates between stages
-- Identification of major drop-off points
+Für die Analyse der Nutzeraktivität werden zusätzlich `dim_user` und `fact_events` verwendet.
 
-The funnel analysis counts users reaching each stage but does not additionally enforce chronological event order.
+Die SQL-Dateien greifen auf das Schema `public` zu. Tabellen mit dem Präfix `dq_` enthalten absichtliche Übungsfehler. Die Tabelle `fact_orders_big` dient den Performance-Untersuchungen.
 
-## Data Quality
+## Bestätigte Kennzahlen
 
-SQL validation checks were used to identify:
+| Kennzahl | Ergebnis |
+|---|---:|
+| Bestellpositionen | 180 |
+| Eindeutige Bestellungen | 178 |
+| Verkaufte Stückzahl | 356 |
+| Gesamtumsatz | 24.614,00 |
+| Umsatz 2024 | 12.951,50 |
+| Umsatz 2025 | 11.662,50 |
+| Registrierte Nutzer | 500 |
+| Nutzer mit Kauf ab hinterlegtem Anmeldedatum | 94 |
+| Kaufquote ab hinterlegtem Anmeldedatum | 18,80 % |
+| Aktive Nutzer im Kalendermonat nach Anmeldung | 352 |
+| Monat-1-Retention | 70,40 % |
 
-- NULL foreign keys
-- Duplicate surrogate keys
-- Orphan records
-- Referential integrity issues
+Die Währung ist anhand der Dokumentation der Quelldaten zu bestätigen.
 
-The checks support reliable analytical reporting.
+Bestell- und Nutzerkennzahlen stammen aus unterschiedlichen Faktentabellen und werden nicht unmittelbar gleichgesetzt.
 
-## Query Optimization
+## Umsatzanalysen
 
-Query performance was investigated using EXPLAIN ANALYZE, indexing, and comparisons of sequential and index scans.
+Die SQL-Abfragen untersuchen:
 
-The project demonstrates how query selectivity influences execution plans.
+- Umsätze nach Region, Produktkategorie und Vertriebskanal
+- Produkt- und Kundenrankings
+- Umsatzveränderungen gegenüber dem Vormonat
+- Laufende Umsatzsummen
+- Gleitende Drei-Monats-Durchschnitte
+
+Die geprüften Dimensions-Joins und BI-Views erhalten die Gesamtwerte der Bestellfakten.
+
+Die monatlichen Fensterberechnungen berücksichtigen alle zwölf Monate des Jahres 2024. Kundenquartals- und Regionsmonatsdurchschnitte berücksichtigen dagegen nur Zeiträume mit vorhandenen Bestellpositionen.
+
+## Kohortenanalyse und Retention
+
+Nutzer werden nach dem Kalendermonat ihres hinterlegten Anmeldedatums in `dim_user.signup_date` gruppiert.
+
+Für die Retention zählen ausschließlich Sessions ab diesem Anmeldedatum. **Monat 1** bezeichnet den folgenden Kalendermonat, keinen festen Zeitraum von 30 Tagen.
+
+Im Datensatz wurden **314 Sessions vor dem hinterlegten Anmeldedatum** gefunden. Diese Sessions werden aus der Retention ausgeschlossen. Die Rohdaten bleiben unverändert.
+
+Der letzte Event-Monat wird vorsorglich als möglicherweise unvollständig ausgeschlossen. Diese Annahme belegt nicht, dass die vorherigen Monate vollständig erfasst wurden.
+
+## Kaufquote und geordneter Funnel
+
+Die Auswertung unterscheidet zwei Kennzahlen:
+
+- **Kaufquote: 18,80 %** – 94 von 500 registrierten Nutzern haben ab ihrem hinterlegten Anmeldedatum gekauft. Zwischenstufen sind dafür nicht erforderlich.
+- **Vollständiger geordneter Funnel: 0,20 %** – Ein Nutzer hat alle fünf aufgezeichneten Schritte in zeitlicher Reihenfolge durchlaufen.
+
+Die Funnel-Stufen lauten:
+
+`signup → browsed → added_to_cart → checkout → purchased`
+
+Die Nutzerzahlen im geordneten Funnel betragen:
+
+**500 → 237 → 67 → 11 → 1**
+
+Beide Auswertungen verwenden den verfügbaren Datenbestand ohne feste Conversion-Frist. Im Funnel sind gleiche Zeitstempel erlaubt; die Schritte müssen nicht innerhalb derselben Session stattfinden.
+
+Das erste Signup-Event liegt bei **24 Nutzern am hinterlegten Anmeldetag** und bei **476 Nutzern an einem späteren Tag**. Signup-Event und hinterlegtes Anmeldedatum sind deshalb unterschiedliche Startpunkte. Die Ursache dieser Abweichung ist nicht geklärt.
+
+## Datenqualität
+
+Die SQL-Prüfungen untersuchen:
+
+- Fehlende und doppelte Schlüssel
+- Ungültige Verweise auf Dimensionstabellen
+- Fehlende Kennzahlen und Eventfelder
+- Events vor dem hinterlegten Anmeldedatum
+- Uneinheitliche Dimensionszuordnungen innerhalb einer Bestellung
+
+Die erweiterte Prüfung ergab **21 PASS-Ergebnisse** und eine Auffälligkeit: die 314 Sessions vor Anmeldung.
+
+Die absichtlich fehlerhaften Übungstabellen zeigen die Auswirkungen von Datenqualitätsproblemen:
+
+- Fünf Bestellpositionen haben keinen Kundenschlüssel.
+- Drei Bestellpositionen verweisen auf einen unbekannten Channel.
+- Ein Kundenschlüssel kommt zweimal vor.
+- Der Kunden-Join vermehrt 175 Positionen auf 191 Zeilen.
+- Ein Join mit eindeutigen Kundenschlüsseln liefert wieder 175 Zeilen.
+
+Die ausgegebenen Werte `PASS` und `FAIL` dienen der Diagnose. Sie stoppen keine Verarbeitung automatisch.
+
+## Performance-Untersuchung
+
+Die Abfragepläne wurden anhand einer Tabelle mit **2.000.000 Zeilen** untersucht.
+
+- Die Suche nach einer Bestellung verwendet einen `Index Scan` und liefert drei Treffer.
+- Die Suche nach einem Channel verwendet einen `Bitmap Index Scan` mit anschließendem `Bitmap Heap Scan` und liefert 499.794 Treffer.
+
+Beide Indizes waren bei der Überprüfung bereits vorhanden. Die gemessenen Laufzeiten schwankten zwischen den Ausführungen.
+
+Die Messungen bestätigen die Indexnutzung. Sie belegen keine Beschleunigung durch eine neue Indexanlage oder die Aktualisierung von Statistiken.
 
 ## Business Intelligence
 
-A Power BI dashboard was used to present analytical results and support business decision-making.
+Im Prüfungsprojekt wurde ein Power-BI-Dashboard zur Darstellung der Analyseergebnisse eingesetzt.
 
-## Assessment
+Die SQL-Dateien erstellen vier unterstützende Views:
 
-**Result: 100/100 Points**
+- `vw_order_details`
+- `vw_region_month_summary`
+- `vw_region_category_pivot`
+- `vw_channel_metrics_long`
 
-The project was completed as part of the Masterschool Data Analytics training program.
+Die Kontrollsummen der geprüften Views stimmen mit den Bestellfakten überein.
 
-The assessment highlighted a clear understanding of warehouse architecture, data granularity, SQL joins, and data quality challenges.
+## Ausführung der SQL-Dateien
 
-## Author
+Voraussetzung sind die vorhandenen NorthRiver-Tabellen mit passenden Spalten und Datentypen. Skripte zur Tabellenerstellung und Beispieldaten sind derzeit nicht enthalten. Das Repository stellt deshalb keine eigenständig ausführbare Datenbankinstallation bereit.
+
+Die Abschnitte anhand ihrer Überschriften einzeln und vollständig ausführen. Ein `WITH`-Block muss zusammen mit seinem abschließenden `SELECT` ausgeführt werden.
+
+Views, Indizes und Statistikaktualisierungen zunächst in einer Testdatenbank ausführen. `EXPLAIN ANALYZE` führt die untersuchte Abfrage tatsächlich aus und kann Last verursachen.
+
+Zugangsdaten, echte Kundendaten, Datenbank-Dumps und Ergebnisse mit identifizierbaren Einzelinformationen gehören nicht in das öffentliche Repository.
+
+## Abschlussprüfung
+
+**Ergebnis: 100/100 Punkte**
+
+Das Projekt wurde im Rahmen der Masterschool-Weiterbildung im Bereich Data Analytics abgeschlossen.
+
+Die Bewertung würdigte das Verständnis von Warehouse-Architektur, Datengranularität, SQL-Joins und Datenqualität.
+
+## Autor
 
 Jesco-Joachim Schnebel
 
 Data Analytics | SQL | Data Warehousing | Business Intelligence
-  
